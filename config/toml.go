@@ -338,7 +338,19 @@ handshake_timeout = "{{ .P2P.HandshakeTimeout }}"
 dial_timeout = "{{ .P2P.DialTimeout }}"
 
 # MConnection Channels Priority
-channels_priority = "{{ .P2P.ChannelsPriority }}"
+state_channel_priority = {{ .P2P.ChannelsPriority.StateChannel }}
+data_channel_priority = {{ .P2P.ChannelsPriority.DataChannel }}
+vote_channel_priority = {{ .P2P.ChannelsPriority.VoteChannel }}
+vote_set_bits_channel_priority = {{ .P2P.ChannelsPriority.VoteSetBitsChannel }}
+evidence_channel_priority = {{ .P2P.ChannelsPriority.EvidenceChannel }}
+blockchain_v0_channel_priority = {{ .P2P.ChannelsPriority.BlockchainV0Channel }}
+blockchain_v1_channel_priority = {{ .P2P.ChannelsPriority.BlockchainV1Channel }}
+blockchain_v2_channel_priority = {{ .P2P.ChannelsPriority.BlockchainV2Channel }}
+pex_channel_priority = {{ .P2P.ChannelsPriority.PexChannel }}
+mempool_v0_channel_priority = {{ .P2P.ChannelsPriority.MempoolV0Channel }}
+mempool_v1_channel_priority = {{ .P2P.ChannelsPriority.MempoolV1Channel }}
+snapshot_channel_priority = {{ .P2P.ChannelsPriority.SnapshotChannel }}
+chunk_channel_priority = {{ .P2P.ChannelsPriority.ChunkChannel }}
 
 #######################################################
 ###          Mempool Configuration Option          ###
