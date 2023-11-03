@@ -84,9 +84,10 @@ func (e errTooEarlyToDial) Error() string {
 type Reactor struct {
 	p2p.BaseReactor
 
-	book              AddrBook
-	config            *ReactorConfig
-	ensurePeersPeriod time.Duration // TODO: should go in the config
+	book               AddrBook
+	config             *ReactorConfig
+	pexChannelPriority int
+	ensurePeersPeriod  time.Duration // TODO: should go in the config
 
 	// maps to prevent abuse
 	requestsSent         *cmap.CMap // ID->struct{}: unanswered send requests
@@ -130,10 +131,11 @@ type _attemptsToDial struct {
 }
 
 // NewReactor creates new PEX reactor.
-func NewReactor(b AddrBook, config *ReactorConfig) *Reactor {
+func NewReactor(b AddrBook, config *ReactorConfig, pexChannelPriority int) *Reactor {
 	r := &Reactor{
 		book:                 b,
 		config:               config,
+		pexChannelPriority:   pexChannelPriority,
 		ensurePeersPeriod:    defaultEnsurePeersPeriod,
 		requestsSent:         cmap.NewCMap(),
 		lastReceivedRequests: cmap.NewCMap(),
@@ -181,7 +183,7 @@ func (r *Reactor) GetChannels() []*conn.ChannelDescriptor {
 	return []*conn.ChannelDescriptor{
 		{
 			ID:                  PexChannel,
-			Priority:            1,
+			Priority:            r.pexChannelPriority,
 			SendQueueCapacity:   10,
 			RecvMessageCapacity: maxMsgSize,
 			MessageType:         &tmp2p.Message{},

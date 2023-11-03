@@ -29,14 +29,16 @@ const (
 // Reactor handles evpool evidence broadcasting amongst peers.
 type Reactor struct {
 	p2p.BaseReactor
-	evpool   *Pool
-	eventBus *types.EventBus
+	evpool                  *Pool
+	eventBus                *types.EventBus
+	evidenceChannelPriority int
 }
 
 // NewReactor returns a new Reactor with the given config and evpool.
-func NewReactor(evpool *Pool) *Reactor {
+func NewReactor(evpool *Pool, evidenceChannelPriority int) *Reactor {
 	evR := &Reactor{
-		evpool: evpool,
+		evpool:                  evpool,
+		evidenceChannelPriority: evidenceChannelPriority,
 	}
 	evR.BaseReactor = *p2p.NewBaseReactor("Evidence", evR)
 	return evR
@@ -54,7 +56,7 @@ func (evR *Reactor) GetChannels() []*p2p.ChannelDescriptor {
 	return []*p2p.ChannelDescriptor{
 		{
 			ID:                  EvidenceChannel,
-			Priority:            6,
+			Priority:            evR.evidenceChannelPriority,
 			RecvMessageCapacity: maxMsgSize,
 			MessageType:         &cmtproto.EvidenceList{},
 		},

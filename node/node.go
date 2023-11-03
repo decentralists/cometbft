@@ -389,6 +389,7 @@ func createMempoolAndMempoolReactor(
 		reactor := mempoolv1.NewReactor(
 			config.Mempool,
 			mp,
+			config.P2P.ChannelsPriority.MempoolV1Channel,
 		)
 		if config.Consensus.WaitForTxs() {
 			mp.EnableTxsAvailable()
@@ -411,6 +412,7 @@ func createMempoolAndMempoolReactor(
 		reactor := mempoolv0.NewReactor(
 			config.Mempool,
 			mp,
+			config.P2P.ChannelsPriority.MempoolV0Channel,
 		)
 		if config.Consensus.WaitForTxs() {
 			mp.EnableTxsAvailable()
@@ -437,7 +439,7 @@ func createEvidenceReactor(config *cfg.Config, dbProvider DBProvider,
 	if err != nil {
 		return nil, nil, err
 	}
-	evidenceReactor := evidence.NewReactor(evidencePool)
+	evidenceReactor := evidence.NewReactor(evidencePool, config.P2P.ChannelsPriority.EvidenceChannel)
 	evidenceReactor.SetLogger(evidenceLogger)
 	return evidenceReactor, evidencePool, nil
 }
@@ -451,11 +453,11 @@ func createBlockchainReactor(config *cfg.Config,
 ) (bcReactor p2p.Reactor, err error) {
 	switch config.FastSync.Version {
 	case "v0":
-		bcReactor = bcv0.NewBlockchainReactor(state.Copy(), blockExec, blockStore, fastSync)
+		bcReactor = bcv0.NewBlockchainReactor(state.Copy(), blockExec, blockStore, fastSync, config.P2P.ChannelsPriority.BlockchainV0Channel)
 	case "v1":
-		bcReactor = bcv1.NewBlockchainReactor(state.Copy(), blockExec, blockStore, fastSync)
+		bcReactor = bcv1.NewBlockchainReactor(state.Copy(), blockExec, blockStore, fastSync, config.P2P.ChannelsPriority.BlockchainV1Channel)
 	case "v2":
-		bcReactor = bcv2.NewBlockchainReactor(state.Copy(), blockExec, blockStore, fastSync)
+		bcReactor = bcv2.NewBlockchainReactor(state.Copy(), blockExec, blockStore, fastSync, config.P2P.ChannelsPriority.BlockchainV2Channel)
 	default:
 		return nil, fmt.Errorf("unknown fastsync version %s", config.FastSync.Version)
 	}
@@ -489,7 +491,7 @@ func createConsensusReactor(config *cfg.Config,
 	if privValidator != nil {
 		consensusState.SetPrivValidator(privValidator)
 	}
-	consensusReactor := cs.NewReactor(consensusState, waitSync, cs.ReactorMetrics(csMetrics))
+	consensusReactor := cs.NewReactor(consensusState, waitSync, config.P2P.ChannelsPriority, cs.ReactorMetrics(csMetrics))
 	consensusReactor.SetLogger(consensusLogger)
 	// services which will be publishing and/or subscribing for messages (events)
 	// consensusReactor will set it on consensusState and blockExecutor
@@ -641,7 +643,8 @@ func createPEXReactorAndAddToSwitch(addrBook pex.AddrBook, config *cfg.Config,
 			// https://github.com/tendermint/tendermint/issues/3523
 			SeedDisconnectWaitPeriod:     28 * time.Hour,
 			PersistentPeersMaxDialPeriod: config.P2P.PersistentPeersMaxDialPeriod,
-		})
+		},
+		config.P2P.ChannelsPriority.PexChannel)
 	pexReactor.SetLogger(logger.With("module", "pex"))
 	sw.AddReactor("PEX", pexReactor)
 	return pexReactor
@@ -843,6 +846,7 @@ func NewNode(config *cfg.Config,
 		proxyApp.Snapshot(),
 		proxyApp.Query(),
 		config.StateSync.TempDir,
+		*config.P2P.ChannelsPriority,
 	)
 	stateSyncReactor.SetLogger(logger.With("module", "statesync"))
 

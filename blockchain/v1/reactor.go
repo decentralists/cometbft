@@ -44,6 +44,8 @@ type consensusReactor interface {
 type BlockchainReactor struct {
 	p2p.BaseReactor
 
+	blockchainChannelPriority int
+
 	initialState sm.State // immutable
 	state        sm.State
 
@@ -72,7 +74,7 @@ type BlockchainReactor struct {
 
 // NewBlockchainReactor returns new reactor instance.
 func NewBlockchainReactor(state sm.State, blockExec *sm.BlockExecutor, store *store.BlockStore,
-	fastSync bool) *BlockchainReactor {
+	fastSync bool, blockchainChannelPriority int) *BlockchainReactor {
 
 	if state.LastBlockHeight != store.Height() {
 		panic(fmt.Sprintf("state (%v) and store (%v) height mismatch", state.LastBlockHeight,
@@ -89,14 +91,15 @@ func NewBlockchainReactor(state sm.State, blockExec *sm.BlockExecutor, store *st
 		startHeight = state.InitialHeight
 	}
 	bcR := &BlockchainReactor{
-		initialState:     state,
-		state:            state,
-		blockExec:        blockExec,
-		fastSync:         fastSync,
-		store:            store,
-		messagesForFSMCh: messagesForFSMCh,
-		eventsFromFSMCh:  eventsFromFSMCh,
-		errorsForFSMCh:   errorsForFSMCh,
+		initialState:              state,
+		state:                     state,
+		blockExec:                 blockExec,
+		fastSync:                  fastSync,
+		store:                     store,
+		messagesForFSMCh:          messagesForFSMCh,
+		eventsFromFSMCh:           eventsFromFSMCh,
+		errorsForFSMCh:            errorsForFSMCh,
+		blockchainChannelPriority: blockchainChannelPriority,
 	}
 	fsm := NewFSM(startHeight, bcR)
 	bcR.fsm = fsm
@@ -169,7 +172,7 @@ func (bcR *BlockchainReactor) GetChannels() []*p2p.ChannelDescriptor {
 	return []*p2p.ChannelDescriptor{
 		{
 			ID:                  BlockchainChannel,
-			Priority:            10,
+			Priority:            bcR.blockchainChannelPriority,
 			SendQueueCapacity:   2000,
 			RecvBufferCapacity:  50 * 4096,
 			RecvMessageCapacity: bc.MaxMsgSize,

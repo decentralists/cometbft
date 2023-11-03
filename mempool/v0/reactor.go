@@ -22,9 +22,10 @@ import (
 // peers you received it from.
 type Reactor struct {
 	p2p.BaseReactor
-	config  *cfg.MempoolConfig
-	mempool *CListMempool
-	ids     *mempoolIDs
+	config                 *cfg.MempoolConfig
+	mempoolChannelPriority int
+	mempool                *CListMempool
+	ids                    *mempoolIDs
 }
 
 type mempoolIDs struct {
@@ -91,11 +92,12 @@ func newMempoolIDs() *mempoolIDs {
 }
 
 // NewReactor returns a new Reactor with the given config and mempool.
-func NewReactor(config *cfg.MempoolConfig, mempool *CListMempool) *Reactor {
+func NewReactor(config *cfg.MempoolConfig, mempool *CListMempool, mempoolChannelPriority int) *Reactor {
 	memR := &Reactor{
-		config:  config,
-		mempool: mempool,
-		ids:     newMempoolIDs(),
+		config:                 config,
+		mempool:                mempool,
+		ids:                    newMempoolIDs(),
+		mempoolChannelPriority: mempoolChannelPriority,
 	}
 	memR.BaseReactor = *p2p.NewBaseReactor("Mempool", memR)
 	return memR
@@ -134,7 +136,7 @@ func (memR *Reactor) GetChannels() []*p2p.ChannelDescriptor {
 	return []*p2p.ChannelDescriptor{
 		{
 			ID:                  mempool.MempoolChannel,
-			Priority:            5,
+			Priority:            memR.mempoolChannelPriority,
 			RecvMessageCapacity: batchMsg.Size(),
 			MessageType:         &protomem.Message{},
 		},

@@ -584,6 +584,9 @@ type P2PConfig struct { //nolint: maligned
 	HandshakeTimeout time.Duration `mapstructure:"handshake_timeout"`
 	DialTimeout      time.Duration `mapstructure:"dial_timeout"`
 
+	// MConnection Channels Priority
+	ChannelsPriority *ChannelsPriority `mapstructure:"channels_priority"`
+
 	// Testing params.
 	// Force dial to fail
 	TestDialFail bool `mapstructure:"test_dial_fail"`
@@ -612,6 +615,7 @@ func DefaultP2PConfig() *P2PConfig {
 		AllowDuplicateIP:             false,
 		HandshakeTimeout:             20 * time.Second,
 		DialTimeout:                  3 * time.Second,
+		ChannelsPriority:             DefaultChannelsPriority(),
 		TestDialFail:                 false,
 		TestFuzz:                     false,
 		TestFuzzConfig:               DefaultFuzzConnConfig(),
@@ -676,6 +680,42 @@ func DefaultFuzzConnConfig() *FuzzConnConfig {
 		ProbDropRW:   0.2,
 		ProbDropConn: 0.00,
 		ProbSleep:    0.00,
+	}
+}
+
+// ChannelsPriority defines the priority of the MConnection channels
+type ChannelsPriority struct {
+	StateChannel        int
+	DataChannel         int
+	VoteChannel         int
+	VoteSetBitsChannel  int
+	EvidenceChannel     int
+	BlockchainV0Channel int
+	BlockchainV1Channel int
+	BlockchainV2Channel int
+	PexChannel          int
+	MempoolV0Channel    int
+	MempoolV1Channel    int
+	SnapshotChannel     int
+	ChunkChannel        int
+}
+
+// DefaultChannelsPriority returns the default config.
+func DefaultChannelsPriority() *ChannelsPriority {
+	return &ChannelsPriority{
+		StateChannel:        6,
+		DataChannel:         10,
+		VoteChannel:         7,
+		VoteSetBitsChannel:  1,
+		EvidenceChannel:     6,
+		BlockchainV0Channel: 5,
+		BlockchainV1Channel: 10,
+		BlockchainV2Channel: 5,
+		PexChannel:          1,
+		MempoolV0Channel:    5,
+		MempoolV1Channel:    5,
+		SnapshotChannel:     5,
+		ChunkChannel:        3,
 	}
 }
 

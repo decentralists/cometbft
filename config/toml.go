@@ -337,6 +337,9 @@ allow_duplicate_ip = {{ .P2P.AllowDuplicateIP }}
 handshake_timeout = "{{ .P2P.HandshakeTimeout }}"
 dial_timeout = "{{ .P2P.DialTimeout }}"
 
+# MConnection Channels Priority
+channels_priority = "{{ .P2P.ChannelsPriority }}"
+
 #######################################################
 ###          Mempool Configuration Option          ###
 #######################################################

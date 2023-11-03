@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gogo/protobuf/proto"
+	cfg "github.com/tendermint/tendermint/config"
 	cstypes "github.com/tendermint/tendermint/consensus/types"
 	"github.com/tendermint/tendermint/libs/bits"
 	cmtevents "github.com/tendermint/tendermint/libs/events"
@@ -36,7 +37,7 @@ const (
 
 //-----------------------------------------------------------------------------
 
-// Reactor defines a reactor for the consensus service.
+// Reactor defines a reactor for the consensus service.\
 type Reactor struct {
 	p2p.BaseReactor // BaseService + p2p.Switch
 
@@ -48,18 +49,21 @@ type Reactor struct {
 	rs       *cstypes.RoundState
 
 	Metrics *Metrics
+
+	channelsPriority *cfg.ChannelsPriority
 }
 
 type ReactorOption func(*Reactor)
 
 // NewReactor returns a new Reactor with the given
 // consensusState.
-func NewReactor(consensusState *State, waitSync bool, options ...ReactorOption) *Reactor {
+func NewReactor(consensusState *State, waitSync bool, channelsPriority *cfg.ChannelsPriority, options ...ReactorOption) *Reactor {
 	conR := &Reactor{
-		conS:     consensusState,
-		waitSync: waitSync,
-		rs:       consensusState.GetRoundState(),
-		Metrics:  NopMetrics(),
+		conS:             consensusState,
+		waitSync:         waitSync,
+		rs:               consensusState.GetRoundState(),
+		Metrics:          NopMetrics(),
+		channelsPriority: channelsPriority,
 	}
 	conR.BaseReactor = *p2p.NewBaseReactor("Consensus", conR)
 
@@ -149,7 +153,7 @@ func (conR *Reactor) GetChannels() []*p2p.ChannelDescriptor {
 	return []*p2p.ChannelDescriptor{
 		{
 			ID:                  StateChannel,
-			Priority:            6,
+			Priority:            conR.channelsPriority.StateChannel,
 			SendQueueCapacity:   100,
 			RecvMessageCapacity: maxMsgSize,
 			MessageType:         &cmtcons.Message{},
@@ -157,7 +161,7 @@ func (conR *Reactor) GetChannels() []*p2p.ChannelDescriptor {
 		{
 			ID: DataChannel, // maybe split between gossiping current block and catchup stuff
 			// once we gossip the whole block there's nothing left to send until next height or round
-			Priority:            10,
+			Priority:            conR.channelsPriority.DataChannel,
 			SendQueueCapacity:   100,
 			RecvBufferCapacity:  50 * 4096,
 			RecvMessageCapacity: maxMsgSize,
@@ -165,7 +169,7 @@ func (conR *Reactor) GetChannels() []*p2p.ChannelDescriptor {
 		},
 		{
 			ID:                  VoteChannel,
-			Priority:            7,
+			Priority:            conR.channelsPriority.VoteChannel,
 			SendQueueCapacity:   100,
 			RecvBufferCapacity:  100 * 100,
 			RecvMessageCapacity: maxMsgSize,
@@ -173,7 +177,7 @@ func (conR *Reactor) GetChannels() []*p2p.ChannelDescriptor {
 		},
 		{
 			ID:                  VoteSetBitsChannel,
-			Priority:            1,
+			Priority:            conR.channelsPriority.VoteSetBitsChannel,
 			SendQueueCapacity:   2,
 			RecvBufferCapacity:  1024,
 			RecvMessageCapacity: maxMsgSize,

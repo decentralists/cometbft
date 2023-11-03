@@ -33,6 +33,8 @@ type blockStore interface {
 type BlockchainReactor struct {
 	p2p.BaseReactor
 
+	blockchainChannelPriority int
+
 	fastSync    bool // if true, enable fast sync on start
 	stateSynced bool // set to true when SwitchToFastSync is called by state sync
 	scheduler   *Routine
@@ -60,7 +62,7 @@ type blockApplier interface {
 
 // XXX: unify naming in this package around cmtState
 func newReactor(state state.State, store blockStore, reporter behaviour.Reporter,
-	blockApplier blockApplier, fastSync bool) *BlockchainReactor {
+	blockApplier blockApplier, fastSync bool, blockchainChannelPriority int) *BlockchainReactor {
 	initHeight := state.LastBlockHeight + 1
 	if initHeight == 1 {
 		initHeight = state.InitialHeight
@@ -72,12 +74,13 @@ func newReactor(state state.State, store blockStore, reporter behaviour.Reporter
 	processor := newPcState(pContext)
 
 	return &BlockchainReactor{
-		scheduler: newRoutine("scheduler", scheduler.handle, chBufferSize),
-		processor: newRoutine("processor", processor.handle, chBufferSize),
-		store:     store,
-		reporter:  reporter,
-		logger:    log.NewNopLogger(),
-		fastSync:  fastSync,
+		scheduler:                 newRoutine("scheduler", scheduler.handle, chBufferSize),
+		processor:                 newRoutine("processor", processor.handle, chBufferSize),
+		store:                     store,
+		reporter:                  reporter,
+		logger:                    log.NewNopLogger(),
+		fastSync:                  fastSync,
+		blockchainChannelPriority: blockchainChannelPriority,
 	}
 }
 
@@ -86,9 +89,10 @@ func NewBlockchainReactor(
 	state state.State,
 	blockApplier blockApplier,
 	store blockStore,
-	fastSync bool) *BlockchainReactor {
+	fastSync bool,
+	blockchainChannelPriority int) *BlockchainReactor {
 	reporter := behaviour.NewMockReporter()
-	return newReactor(state, store, reporter, blockApplier, fastSync)
+	return newReactor(state, store, reporter, blockApplier, fastSync, blockchainChannelPriority)
 }
 
 // SetSwitch implements Reactor interface.
@@ -564,7 +568,7 @@ func (r *BlockchainReactor) GetChannels() []*p2p.ChannelDescriptor {
 	return []*p2p.ChannelDescriptor{
 		{
 			ID:                  BlockchainChannel,
-			Priority:            5,
+			Priority:            r.blockchainChannelPriority,
 			SendQueueCapacity:   2000,
 			RecvBufferCapacity:  50 * 4096,
 			RecvMessageCapacity: bc.MaxMsgSize,

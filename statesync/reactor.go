@@ -31,10 +31,11 @@ const (
 type Reactor struct {
 	p2p.BaseReactor
 
-	cfg       config.StateSyncConfig
-	conn      proxy.AppConnSnapshot
-	connQuery proxy.AppConnQuery
-	tempDir   string
+	cfg              config.StateSyncConfig
+	channelsPriority config.ChannelsPriority
+	conn             proxy.AppConnSnapshot
+	connQuery        proxy.AppConnQuery
+	tempDir          string
 
 	// This will only be set when a state sync is in progress. It is used to feed received
 	// snapshots and chunks into the sync.
@@ -48,12 +49,14 @@ func NewReactor(
 	conn proxy.AppConnSnapshot,
 	connQuery proxy.AppConnQuery,
 	tempDir string,
+	channelsPriority config.ChannelsPriority,
 ) *Reactor {
 
 	r := &Reactor{
-		cfg:       cfg,
-		conn:      conn,
-		connQuery: connQuery,
+		cfg:              cfg,
+		conn:             conn,
+		connQuery:        connQuery,
+		channelsPriority: channelsPriority,
 	}
 	r.BaseReactor = *p2p.NewBaseReactor("StateSync", r)
 
@@ -65,14 +68,14 @@ func (r *Reactor) GetChannels() []*p2p.ChannelDescriptor {
 	return []*p2p.ChannelDescriptor{
 		{
 			ID:                  SnapshotChannel,
-			Priority:            5,
+			Priority:            r.channelsPriority.SnapshotChannel,
 			SendQueueCapacity:   10,
 			RecvMessageCapacity: snapshotMsgSize,
 			MessageType:         &ssproto.Message{},
 		},
 		{
 			ID:                  ChunkChannel,
-			Priority:            3,
+			Priority:            r.channelsPriority.ChunkChannel,
 			SendQueueCapacity:   10,
 			RecvMessageCapacity: chunkMsgSize,
 			MessageType:         &ssproto.Message{},
