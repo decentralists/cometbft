@@ -453,11 +453,11 @@ func createBlockchainReactor(config *cfg.Config,
 ) (bcReactor p2p.Reactor, err error) {
 	switch config.FastSync.Version {
 	case "v0":
-		bcReactor = bcv0.NewBlockchainReactor(state.Copy(), blockExec, blockStore, fastSync, config.P2P.ChannelsPriority.BlockchainV0Channel)
+		bcReactor = bcv0.NewBlockchainReactor(state.Copy(), blockExec, blockStore, fastSync, config.P2P.ChannelsPriority.FastSyncV0Channel)
 	case "v1":
-		bcReactor = bcv1.NewBlockchainReactor(state.Copy(), blockExec, blockStore, fastSync, config.P2P.ChannelsPriority.BlockchainV1Channel)
+		bcReactor = bcv1.NewBlockchainReactor(state.Copy(), blockExec, blockStore, fastSync, config.P2P.ChannelsPriority.FastSyncV1Channel)
 	case "v2":
-		bcReactor = bcv2.NewBlockchainReactor(state.Copy(), blockExec, blockStore, fastSync, config.P2P.ChannelsPriority.BlockchainV2Channel)
+		bcReactor = bcv2.NewBlockchainReactor(state.Copy(), blockExec, blockStore, fastSync, config.P2P.ChannelsPriority.FastSyncV2Channel)
 	default:
 		return nil, fmt.Errorf("unknown fastsync version %s", config.FastSync.Version)
 	}

@@ -660,6 +660,45 @@ func (cfg *P2PConfig) ValidateBasic() error {
 	if cfg.RecvRate < 0 {
 		return errors.New("recv_rate can't be negative")
 	}
+	if cfg.ChannelsPriority.ChunkChannel <= 0 {
+		return errors.New("chunk_channel priority must be a positive integer")
+	}
+	if cfg.ChannelsPriority.DataChannel <= 0 {
+		return errors.New("data_channel priority must be a positive integer")
+	}
+	if cfg.ChannelsPriority.EvidenceChannel <= 0 {
+		return errors.New("evidence_channel priority must be a positive integer")
+	}
+	if cfg.ChannelsPriority.FastSyncV0Channel <= 0 {
+		return errors.New("fastsync_v0_channel priority must be a positive integer")
+	}
+	if cfg.ChannelsPriority.FastSyncV1Channel <= 0 {
+		return errors.New("fastsync_v1_channel priority must be a positive integer")
+	}
+	if cfg.ChannelsPriority.FastSyncV2Channel <= 0 {
+		return errors.New("fastsync_v2_channel priority must be a positive integer")
+	}
+	if cfg.ChannelsPriority.MempoolV0Channel <= 0 {
+		return errors.New("mempool_v0_channel priority must be a positive integer")
+	}
+	if cfg.ChannelsPriority.MempoolV1Channel <= 0 {
+		return errors.New("mempool_v1_channel priority must be a positive integer")
+	}
+	if cfg.ChannelsPriority.PexChannel <= 0 {
+		return errors.New("pex_channel priority must be a positive integer")
+	}
+	if cfg.ChannelsPriority.SnapshotChannel <= 0 {
+		return errors.New("snapshot_channel priority must be a positive integer")
+	}
+	if cfg.ChannelsPriority.StateChannel <= 0 {
+		return errors.New("state_channel priority must be a positive integer")
+	}
+	if cfg.ChannelsPriority.VoteChannel <= 0 {
+		return errors.New("vote_channel priority must be a positive integer")
+	}
+	if cfg.ChannelsPriority.VoteSetBitsChannel <= 0 {
+		return errors.New("vote_set_bits_channel priority must be a positive integer")
+	}
 	return nil
 }
 
@@ -685,37 +724,37 @@ func DefaultFuzzConnConfig() *FuzzConnConfig {
 
 // ChannelsPriority defines the priority of the MConnection channels
 type ChannelsPriority struct {
-	StateChannel        int
-	DataChannel         int
-	VoteChannel         int
-	VoteSetBitsChannel  int
-	EvidenceChannel     int
-	BlockchainV0Channel int
-	BlockchainV1Channel int
-	BlockchainV2Channel int
-	PexChannel          int
-	MempoolV0Channel    int
-	MempoolV1Channel    int
-	SnapshotChannel     int
-	ChunkChannel        int
+	StateChannel       int `mapstructure:"state_channel"`
+	DataChannel        int `mapstructure:"data_channel"`
+	VoteChannel        int `mapstructure:"vote_channel"`
+	VoteSetBitsChannel int `mapstructure:"vote_set_bits_channel"`
+	EvidenceChannel    int `mapstructure:"evidence_channel"`
+	FastSyncV0Channel  int `mapstructure:"fastsync_v0_channel"`
+	FastSyncV1Channel  int `mapstructure:"fastsync_v1_channel"`
+	FastSyncV2Channel  int `mapstructure:"fastsync_v2_channel"`
+	PexChannel         int `mapstructure:"pex_channel"`
+	MempoolV0Channel   int `mapstructure:"mempool_v0_channel"`
+	MempoolV1Channel   int `mapstructure:"mempool_v1_channel"`
+	SnapshotChannel    int `mapstructure:"snapshot_channel"`
+	ChunkChannel       int `mapstructure:"chunk_channel"`
 }
 
 // DefaultChannelsPriority returns the default config.
 func DefaultChannelsPriority() *ChannelsPriority {
 	return &ChannelsPriority{
-		StateChannel:        6,
-		DataChannel:         10,
-		VoteChannel:         7,
-		VoteSetBitsChannel:  1,
-		EvidenceChannel:     6,
-		BlockchainV0Channel: 5,
-		BlockchainV1Channel: 10,
-		BlockchainV2Channel: 5,
-		PexChannel:          1,
-		MempoolV0Channel:    5,
-		MempoolV1Channel:    5,
-		SnapshotChannel:     5,
-		ChunkChannel:        3,
+		StateChannel:       6,
+		DataChannel:        10,
+		VoteChannel:        7,
+		VoteSetBitsChannel: 1,
+		EvidenceChannel:    6,
+		FastSyncV0Channel:  5,
+		FastSyncV1Channel:  10,
+		FastSyncV2Channel:  5,
+		PexChannel:         1,
+		MempoolV0Channel:   5,
+		MempoolV1Channel:   5,
+		SnapshotChannel:    5,
+		ChunkChannel:       3,
 	}
 }
 

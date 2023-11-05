@@ -338,19 +338,20 @@ handshake_timeout = "{{ .P2P.HandshakeTimeout }}"
 dial_timeout = "{{ .P2P.DialTimeout }}"
 
 # MConnection Channels Priority
-state_channel_priority = {{ .P2P.ChannelsPriority.StateChannel }}
-data_channel_priority = {{ .P2P.ChannelsPriority.DataChannel }}
-vote_channel_priority = {{ .P2P.ChannelsPriority.VoteChannel }}
-vote_set_bits_channel_priority = {{ .P2P.ChannelsPriority.VoteSetBitsChannel }}
-evidence_channel_priority = {{ .P2P.ChannelsPriority.EvidenceChannel }}
-blockchain_v0_channel_priority = {{ .P2P.ChannelsPriority.BlockchainV0Channel }}
-blockchain_v1_channel_priority = {{ .P2P.ChannelsPriority.BlockchainV1Channel }}
-blockchain_v2_channel_priority = {{ .P2P.ChannelsPriority.BlockchainV2Channel }}
-pex_channel_priority = {{ .P2P.ChannelsPriority.PexChannel }}
-mempool_v0_channel_priority = {{ .P2P.ChannelsPriority.MempoolV0Channel }}
-mempool_v1_channel_priority = {{ .P2P.ChannelsPriority.MempoolV1Channel }}
-snapshot_channel_priority = {{ .P2P.ChannelsPriority.SnapshotChannel }}
-chunk_channel_priority = {{ .P2P.ChannelsPriority.ChunkChannel }}
+[p2p.channels_priority]
+state_channel = {{ .P2P.ChannelsPriority.StateChannel }}
+data_channel = {{ .P2P.ChannelsPriority.DataChannel }}
+vote_channel = {{ .P2P.ChannelsPriority.VoteChannel }}
+vote_set_bits_channel = {{ .P2P.ChannelsPriority.VoteSetBitsChannel }}
+evidence_channel = {{ .P2P.ChannelsPriority.EvidenceChannel }}
+fastsync_v0_channel = {{ .P2P.ChannelsPriority.FastSyncV0Channel }}
+fastsync_v1_channel = {{ .P2P.ChannelsPriority.FastSyncV1Channel }}
+fastsync_v2_channel = {{ .P2P.ChannelsPriority.FastSyncV2Channel }}
+pex_channel = {{ .P2P.ChannelsPriority.PexChannel }}
+mempool_v0_channel = {{ .P2P.ChannelsPriority.MempoolV0Channel }}
+mempool_v1_channel = {{ .P2P.ChannelsPriority.MempoolV1Channel }}
+snapshot_channel = {{ .P2P.ChannelsPriority.SnapshotChannel }}
+chunk_channel = {{ .P2P.ChannelsPriority.ChunkChannel }}
 
 #######################################################
 ###          Mempool Configuration Option          ###
